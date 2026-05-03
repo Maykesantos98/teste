@@ -895,6 +895,84 @@
             width: 130px; height: 4px; border-radius: 2px;
             background: rgba(255,255,255,0.2); z-index: 20;
         }
+
+        /* iToken card animado na tela de login */
+        .itoken-card-login {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(110, 60, 220, 0.18), rgba(60, 30, 140, 0.10));
+            border: 1px solid rgba(176, 124, 255, 0.35);
+            box-shadow: 0 0 24px rgba(110, 60, 220, 0.12) inset;
+            position: relative;
+            overflow: hidden;
+        }
+        .itoken-card-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 80% -20%, rgba(176,124,255,0.25), transparent 60%);
+            pointer-events: none;
+        }
+        .itoken-card-head {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 9px; letter-spacing: 1.2px; font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 6px; position: relative;
+        }
+        .itoken-card-title { flex: 1; }
+        .itoken-lock-svg {
+            color: #B07CFF;
+            animation: itokenLockPulse 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 0 4px rgba(176,124,255,0.6));
+        }
+        .itoken-card-pulse {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #38e6a8;
+            box-shadow: 0 0 8px #38e6a8;
+            animation: itokenLivePulse 1.4s ease-in-out infinite;
+        }
+        .itoken-code-display {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 24px; font-weight: 800;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 12px rgba(176, 124, 255, 0.55);
+            transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+            position: relative;
+        }
+        .itoken-code-display.flipping {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.94);
+            filter: blur(2px);
+        }
+        .itoken-progress {
+            margin-top: 8px;
+            height: 3px; border-radius: 2px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+            position: relative;
+        }
+        .itoken-progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #6E3CDC, #B07CFF, #38e6a8);
+            transform-origin: left;
+            animation: itokenCountdown 4s linear infinite;
+        }
+
+        @keyframes itokenLockPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.18) rotate(-3deg); filter: drop-shadow(0 0 10px rgba(176,124,255,0.9)); }
+        }
+        @keyframes itokenLivePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.45; transform: scale(0.7); }
+        }
+        @keyframes itokenCountdown {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
     </style>
 </head>
 <body>
@@ -917,6 +995,7 @@
             <a href="#demo">Demonstracao</a>
             <a href="#security">Seguranca</a>
             <a href="#operations">Operacoes</a>
+            <a href="#sprint-update">Sprint Abr/Mai</a>
             <a href="#comparison">Comparativo</a>
             <span class="nav-badge">CONFIDENCIAL</span>
         </div>
@@ -1059,10 +1138,24 @@
                                 <div style="font-size:20px;font-weight:800;margin-bottom:4px;">Bem-vindo</div>
                                 <div style="font-size:13px;color:rgba(255,255,255,0.4);">Acesse sua conta EAV Bank</div>
                             </div>
-                            <div class="phone-label">E-mail</div>
-                            <div class="phone-input filled">joao@email.com</div>
+                            <div class="phone-label">CPF</div>
+                            <div class="phone-input filled">123.456.789-00</div>
                             <div class="phone-label">Senha</div>
                             <div class="phone-input filled" style="letter-spacing:3px;">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</div>
+
+                            <!-- iToken card animado: cadeado + codigo rotacionando + barra TTL -->
+                            <div class="itoken-card-login" aria-label="iToken sendo gerado">
+                                <div class="itoken-card-head">
+                                    <svg class="itoken-lock-svg" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                        <path fill="currentColor" d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 0 1 4 0v2h-4V6zm2 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+                                    </svg>
+                                    <span class="itoken-card-title">iToken — APP EAV BANK</span>
+                                    <span class="itoken-card-pulse" id="itokenLoginPulse"></span>
+                                </div>
+                                <div class="itoken-code-display" id="itokenCodeLogin">482 915</div>
+                                <div class="itoken-progress"><div class="itoken-progress-bar" id="itokenLoginBar"></div></div>
+                            </div>
+
                             <div style="flex:1;"></div>
                             <button class="phone-btn" onclick="goToStep(1)">Entrar</button>
                         </div>
@@ -1221,7 +1314,7 @@
                 <img src="data:image/png;base64,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" alt="">
                 Protecao em Camadas
             </div>
-            <div class="section-title">6 Camadas de Seguranca</div>
+            <div class="section-title">8 Camadas de Seguranca</div>
             <div class="section-subtitle" style="margin:0 auto;">
                 Cada camada opera de forma independente. Comprometer uma nao afeta as demais.
             </div>
@@ -1281,6 +1374,24 @@
                     <span class="security-pct">100%</span>
                 </div>
             </div>
+            <div class="security-card" style="--bar-width:96%;">
+                <div class="security-card-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>Trust Levels</h3>
+                <p>Dispositivos novos comecam com teto de R$ 1.000 em PIX/TED. Promocao automatica para "trusted" depois de 30 dias de uso continuo.</p>
+                <div class="security-indicator">
+                    <div class="security-bar"><div class="security-bar-fill"></div></div>
+                    <span class="security-pct">96%</span>
+                </div>
+            </div>
+            <div class="security-card" style="--bar-width:94%;">
+                <div class="security-card-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>Risk Signals</h3>
+                <p>App detecta chamada ativa, screen-share e cast. Backend bloqueia operacoes financeiras enquanto o sinal estiver ativo. Antidoto contra "golpe da central".</p>
+                <div class="security-indicator">
+                    <div class="security-bar"><div class="security-bar-fill"></div></div>
+                    <span class="security-pct">94%</span>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1333,6 +1444,94 @@
                     &nbsp;&nbsp;timestamp <span class="op">+</span> device_id<br>
                     ) <span class="cmt">// Valido 30s, uso unico</span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPRINT 2026-04/05 — Trust, Auditoria & Risk Signals -->
+    <section id="sprint-update">
+        <div class="reveal" style="text-align:center;">
+            <div class="section-label">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt="">
+                Sprint Abril/Maio 2026
+            </div>
+            <div class="section-title">Trust, Auditoria & Anti-Golpe-da-Central</div>
+            <div class="section-subtitle" style="margin:0 auto;">
+                Quatro novas defensas que fecham os ultimos vetores de ataque conhecidos no fluxo iToken.
+            </div>
+        </div>
+
+        <div class="benefits-grid">
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>Teto de R$ 1.000 enforced no PIX/TED</h3>
+                <p>Devices com menos de 30 dias agora bloqueiam transacoes acima de R$ 1.000 ANTES da movimentacao financeira. O bypass via /verify generico foi fechado: o gate roda no controller de transacoes, nao mais so no /verify-contextual.</p>
+            </div>
+
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>Audit trail 100% por device</h3>
+                <p>Tabela <code>itoken_audit_logs</code> dedicada, com indices em (user, created_at), (device, created_at) e (operation, success). Toda verificacao, falha, rate-limit, promocao e auto-revogacao geram registro forense. Retencao de 365 dias com purga automatica diaria.</p>
+            </div>
+
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>Risk Signals — anti-golpe-da-central</h3>
+                <p>App reporta sinais (chamada ativa, screen-share, displays espelhados, acessibilidade) ao backend, que classifica em low / medium / high / critical. Operacoes financeiras retornam 403 enquanto o sinal estiver ativo. Sinais expiram em 30 minutos.</p>
+            </div>
+
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>Hardening operacional</h3>
+                <p>Rate limit migrado para <code>RateLimiter</code> atomico (sem race conditions). Comparacoes monetarias com <code>bcmath</code>. Re-registro de device reseta trust para "new". Maintenance command com <code>--dry-run</code>, scheduler diario as 04h.</p>
+            </div>
+        </div>
+
+        <div class="reveal" style="margin-top:48px; text-align:center;">
+            <div class="section-title" style="font-size:24px;">Como o golpe da central tenta atuar</div>
+            <div class="section-subtitle" style="margin:0 auto;">
+                Tres etapas — e por que cada uma agora encontra uma barreira.
+            </div>
+        </div>
+
+        <div class="benefits-grid">
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>1. Falsa central liga</h3>
+                <p>Golpista finge ser do banco, induz a vitima a abrir o app e compartilhar a tela via WhatsApp video ou app de espelhamento.</p>
+                <p style="color:#7AC1FF; margin-top:12px;"><strong>Defesa:</strong> O app detecta a chamada (CallKit/TelephonyManager) e reporta ao backend.</p>
+            </div>
+
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>2. Tela espelhada</h3>
+                <p>O cliente compartilha a tela. Golpista ve saldos, chaves PIX, e narra para a vitima clicar onde ele orienta.</p>
+                <p style="color:#7AC1FF; margin-top:12px;"><strong>Defesa:</strong> <code>UIScreen.isCaptured</code> (iOS) / <code>MediaProjection</code> (Android) sao reportados — risco classificado como <em>high</em>.</p>
+            </div>
+
+            <div class="benefit-card reveal">
+                <div class="benefit-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" alt=""></div>
+                <h3>3. PIX para o golpista</h3>
+                <p>Sob orientacao, a vitima tenta enviar PIX para a conta do criminoso. Aqui e onde o dinheiro vazaria.</p>
+                <p style="color:#7AC1FF; margin-top:12px;"><strong>Defesa:</strong> Backend retorna 403 com <code>HIGH_RISK_SESSION</code>. PIX/TED nao sai. App orienta o cliente a encerrar a chamada.</p>
+            </div>
+        </div>
+
+        <div class="reveal" style="margin-top:48px;">
+            <div class="formula-box" style="max-width:880px; margin:0 auto;">
+                <span class="cmt">// POST /api/v1/security/risk-signals — app reporta sinais</span><br>
+                {<br>
+                &nbsp;&nbsp;<span class="str">"device_id"</span>: <span class="str">"iphone-15-uuid"</span>,<br>
+                &nbsp;&nbsp;<span class="str">"signals"</span>: {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"call_active"</span>: <span class="op">true</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"screen_captured"</span>: <span class="op">true</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"mirrored_displays"</span>: 2<br>
+                &nbsp;&nbsp;}<br>
+                }<br>
+                <br>
+                <span class="cmt">// Resposta: risk_level=critical, valido por 30 min</span><br>
+                <span class="cmt">// Tentativa de POST /api/v1/transactions enquanto ativo:</span><br>
+                <span class="op">→</span> 403 <span class="str">HIGH_RISK_SESSION</span> <span class="cmt">// PIX bloqueado</span>
             </div>
         </div>
     </section>
@@ -1419,7 +1618,7 @@
         <div class="stat-label">Uso Unico</div>
     </div>
     <div class="stat-card">
-        <div class="stat-num" data-target="6" data-suffix="">0</div>
+        <div class="stat-num" data-target="8" data-suffix="">0</div>
         <div class="stat-label">Camadas de Protecao</div>
     </div>
 </div>
@@ -1664,6 +1863,30 @@
         document.getElementById('opDesc').textContent = op.desc;
         document.getElementById('opFormula').innerHTML = op.formula;
     };
+
+    // ===== iToken animado na tela de login =====
+    // Sincronizado com a barra de progresso (4s no demo — em producao, 30s reais).
+    (function rotateLoginItoken() {
+        const codeEl = document.getElementById('itokenCodeLogin');
+        if (!codeEl) return;
+
+        // Pool de codigos verossimeis (HMAC-SHA256 truncado a 6 digitos no real).
+        const pool = ['482915','730441','158294','692058','341780','826493','509217','174356','238617','905324'];
+        let i = 0;
+        const ROTATION_MS = 4000;
+        const FLIP_MS = 280;
+
+        const format = (n) => n.slice(0, 3) + ' ' + n.slice(3);
+
+        setInterval(() => {
+            codeEl.classList.add('flipping');
+            setTimeout(() => {
+                i = (i + 1) % pool.length;
+                codeEl.textContent = format(pool[i]);
+                codeEl.classList.remove('flipping');
+            }, FLIP_MS);
+        }, ROTATION_MS);
+    })();
 
 })();
 </script>
